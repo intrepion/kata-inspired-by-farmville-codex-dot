@@ -1,0 +1,63 @@
+import { chromium } from 'playwright';
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { createServer } from 'node:http';
+import { resolve, extname, sep } from 'node:path';
+const root = resolve(import.meta.dirname, '..');
+process.chdir(root);
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const inputHashes = {};
+async function inventory(dir, prefix = '') { for (const item of (await readdir(dir, { withFileTypes: true })).sort((a,b)=>a.name.localeCompare(b.name))) { const name = prefix + item.name; if (name === 'arcade') continue; if (item.isDirectory()) await inventory(resolve(dir,item.name), name+'/'); else inputHashes[name] = sha(await readFile(resolve(dir,item.name))); } }
+await inventory(resolve('dist'));
+const sourceCommit = execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const capturedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+const buildRoot = resolve('dist');
+const server = createServer(async (req,res) => { try { const path = resolve(buildRoot, '.' + decodeURIComponent(new URL(req.url,'http://localhost').pathname)); if (path !== buildRoot && !path.startsWith(buildRoot+sep)) throw Error('path'); const file = path === buildRoot ? resolve(path,'index.html') : path; const bytes = await readFile(file); res.setHeader('Content-Type', ({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg'})[extname(file)] || 'application/octet-stream'); res.end(bytes); } catch { res.writeHead(404);res.end(); } });
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const baseUrl = `http://127.0.0.1:${server.address().port}/`;
+const viewport = {width:1440,height:1100};
+const browser = await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const context = await browser.newContext({viewport,deviceScaleFactor:1,locale:'en-US',timezoneId:'UTC',reducedMotion:'reduce'});
+const page = await context.newPage();
+const errors = [];
+page.on('pageerror',error=>errors.push(error.message));
+page.on('console',message=>{if(message.type()==='error' && !message.text().includes('favicon.ico')) errors.push(message.text());});
+const screenshots=[];
+const steps=['Serve the production dist artifact over HTTP on loopback.','Start a clean browser context, en-US, UTC, 1440 × 1100, device scale 1.','Fix Date at 2026-11-05T00:00:00Z using Playwright clock; keep normal timers.','Load the Classic farm and verify the real WebGL canvas and two ripe crops.'];
+try {
+ await page.clock.setFixedTime(new Date('2026-11-05T00:00:00Z'));
+ await page.goto(baseUrl, {waitUntil:'networkidle'});
+ await page.locator('#farm-canvas canvas').waitFor({state:'visible'});
+ await page.waitForFunction(()=>document.querySelector('#ledger-ready').textContent==='2');
+ await page.evaluate(()=>document.fonts.ready);
+ async function capture(index,alt) {
+  await page.mouse.move(0,0); await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(4500);
+  if(errors.length) throw Error(errors.join('\n'));
+  const name=`review-20261105-0${index}`;
+  const sourcePath=`arcade/capture-evidence/${name}.png`;
+  const path=`arcade/screenshots/${name}.jpg`;
+  await mkdir(resolve('public/arcade/capture-evidence'),{recursive:true});
+  await mkdir(resolve('public/arcade/screenshots'),{recursive:true});
+  await page.screenshot({path:resolve('public',sourcePath),fullPage:true});
+  await page.screenshot({path:resolve('public',path),type:'jpeg',quality:88,fullPage:true});
+  const record={sourceCommit,inputs:inputHashes,capturedAt,baseUrl,tool:{name:'Playwright',version:JSON.parse(await readFile('node_modules/playwright/package.json')).version},browser:{name:'Chromium',version:browser.version()},viewport,steps:[...steps],clock:'2026-11-05T00:00:00Z',deployedBuild:null,notes:'Local production artifact. Browser pixels are unedited. Platform fonts and software WebGL can vary across operating systems. No deployment equivalence claimed.'};
+  const captureRecordPath=`arcade/capture-evidence/${name}.json`;
+  await writeFile(resolve('public',captureRecordPath),JSON.stringify(record,null,2)+'\n');
+  screenshots.push({path,sha256:sha(await readFile(resolve('public',path))),alt,provenance:{kind:'local_gameplay_capture',sourcePath,sourceSha256:sha(await readFile(resolve('public',sourcePath))),captureCommit:sourceCommit,inputHashes,capturedAt,captureRecordPath,captureRecordSha256:sha(await readFile(resolve('public',captureRecordPath)))}});
+ }
+ await capture(1,'Sprout & Soil Classic farm with an isometric field, two ripe crops, farming tools, and the seed store.');
+ await page.locator('#list-button').click();
+ await page.locator('[data-plot="52"]').click(); await page.locator('[data-plot="53"]').click();
+ await page.locator('[data-tool="plow"]').click();
+ for(const i of [52,53,63,75]) await page.locator(`[data-plot="${i}"]`).click();
+ await page.locator('[data-product="strawberry"]').click();
+ for(const i of [52,53,63,75,76,77]) await page.locator(`[data-plot="${i}"]`).click();
+ await page.waitForFunction(()=>document.querySelector('#total-harvests').textContent==='2' && document.querySelector('#ledger-growing').textContent==='8');
+ await page.locator('#list-button').click(); await page.locator('#zoom-in').click();
+ steps.push('Open the public accessible plot list and harvest the two ripe crops.','Select Plow and plow four plots; select Strawberry from the market and plant six tilled plots.','Verify two harvests and eight growing crops, close the plot list and zoom in once.');
+ await capture(2,'Sprout & Soil after two harvests and six strawberry plantings, showing eight growing crops and completed first-row goals.');
+ await writeFile('public/arcade/manifest.json',JSON.stringify({schemaVersion:3,gameId:'kata-inspired-by-farmville-codex-dot',playUrl:'https://intrepion.github.io/kata-inspired-by-farmville-codex-dot/',screenshots},null,2)+'\n');
+ console.log(`Captured ${screenshots.length} gameplay images from ${baseUrl}`);
+} finally { await browser.close(); await new Promise(resolve=>server.close(resolve)); }

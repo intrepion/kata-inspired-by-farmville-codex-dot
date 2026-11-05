@@ -1,6 +1,51 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "gameId": "kata-inspired-by-farmville-codex-dot",
   "playUrl": "https://intrepion.github.io/kata-inspired-by-farmville-codex-dot/",
-  "screenshots": []
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/review-20261105-01.jpg",
+      "sha256": "8cafe68f168e822e181ec1dd594b05cab818341aec32d1013386c3aa93767309",
+      "alt": "Sprout & Soil Classic farm with an isometric field, two ripe crops, farming tools, and the seed store.",
+      "provenance": {
+        "kind": "local_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/review-20261105-01.png",
+        "sourceSha256": "842084eb9ba0d1d5016ec30b5cc0da4f7eff1fc45c0a3634ed5052869258ac39",
+        "captureCommit": "d9b8438751fc358f2ac9cc4d859a57e6c87200e2",
+        "inputHashes": {
+          "assets/index-3iKyU_Zo.js": "82c8c71e947a2e391d59dc961d97a51683a1d258fc1b8c731822041552c3867e",
+          "assets/index-DhE1l2kf.css": "1b0da67f6700d5e7c30a8606cea2fa428ef47fe7b7822f8ed573d39652a0561c",
+          "assets/three-CxzD95GI.js": "5e5392744d7a924c301a43061b3b3b014440d565b8390d476c6401ba900c8843",
+          "favicon.svg": "1cae780e1d690787caf06cf32346c1f60d5ac2afd6f44b9be63b0aefb4870ab7",
+          "index.html": "8cfacf0c9a969f40116022be6fc203f5b53bf4dbcb865d88a2aa37f41ad0fb14",
+          "licenses/three-LICENSE.txt": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+        },
+        "capturedAt": "2026-11-05T05:42:33Z",
+        "captureRecordPath": "arcade/capture-evidence/review-20261105-01.json",
+        "captureRecordSha256": "794183a5c105b751af7c012ae23dece3d16914dc5b122966e15b6da88774a9db"
+      }
+    },
+    {
+      "path": "arcade/screenshots/review-20261105-02.jpg",
+      "sha256": "e0730012fab12355d782b81d7faa66f0409ac4659d84c32c38bc91dd663e8fd3",
+      "alt": "Sprout & Soil after two harvests and six strawberry plantings, showing eight growing crops and completed first-row goals.",
+      "provenance": {
+        "kind": "local_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/review-20261105-02.png",
+        "sourceSha256": "196d3a6b891f4d8bbb80dc599ce472285601c35a0f9136e96b968e9a1b08a7ef",
+        "captureCommit": "d9b8438751fc358f2ac9cc4d859a57e6c87200e2",
+        "inputHashes": {
+          "assets/index-3iKyU_Zo.js": "82c8c71e947a2e391d59dc961d97a51683a1d258fc1b8c731822041552c3867e",
+          "assets/index-DhE1l2kf.css": "1b0da67f6700d5e7c30a8606cea2fa428ef47fe7b7822f8ed573d39652a0561c",
+          "assets/three-CxzD95GI.js": "5e5392744d7a924c301a43061b3b3b014440d565b8390d476c6401ba900c8843",
+          "favicon.svg": "1cae780e1d690787caf06cf32346c1f60d5ac2afd6f44b9be63b0aefb4870ab7",
+          "index.html": "8cfacf0c9a969f40116022be6fc203f5b53bf4dbcb865d88a2aa37f41ad0fb14",
+          "licenses/three-LICENSE.txt": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+        },
+        "capturedAt": "2026-11-05T05:42:33Z",
+        "captureRecordPath": "arcade/capture-evidence/review-20261105-02.json",
+        "captureRecordSha256": "076178a3986bd3d69817aba35ef4ea2e927cf9f3de3866e8cd746aecc656e0be"
+      }
+    }
+  ]
 }

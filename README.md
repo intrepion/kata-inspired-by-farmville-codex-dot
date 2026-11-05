@@ -60,3 +60,21 @@ See [validation](docs/VALIDATION.md) for the actual test evidence. Pure engine t
 MIT, copyright 2026 Oliver Forral. Original models are authored geometry; market crop symbols use system emoji. Three.js is MIT-licensed; its full notice ships in [public/licenses/three-LICENSE.txt](public/licenses/three-LICENSE.txt). FarmVille is a trademark of Zynga. This independent educational project is not affiliated with or endorsed by Zynga.
 
 The combined `.gitignore` includes the Linux, Windows, and macOS global templates from [github/gitignore](https://github.com/github/gitignore/tree/main/Global), plus generated Node/Vite artifacts. Dependency locks and source remain tracked.
+
+## Arcade gameplay screenshots
+
+The game owns `public/arcade/manifest.json`, two JPEGs, and their original PNGs and capture records under `public/arcade/`. Vite includes these files in the deployed artifact. These are **local production-build gameplay captures**, not CI captures or a claim about an exact live deployment. Schema version 3 preserves the capture timestamp, source commit, every served game input hash (excluding the gallery itself), tool/browser versions, viewport, and public interaction steps.
+
+To reproduce on a clean checkout:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run capture:arcade
+npm test
+npm run build
+```
+
+The script uses pinned Playwright 1.63.0 and its matching Chromium, starts its own loopback HTTP server for `dist`, uses a fresh browser context and fixed clock, then plays through the public controls. It captures the starting Classic farm and the farm after harvesting, plowing, and planting. It does not inject a save or change the game's DOM, artwork, or screenshot pixels. Original PNG evidence and JPEG screenshots both come directly from Playwright. Rendering and system emoji/fonts may differ across platforms; the workflow is reproducible, not a cross-platform pixel identity guarantee.
+
+Review both images after each refresh. `npm test` refuses empty galleries, invalid image hashes, or mismatched capture records. After publishing, verify the deployed manifest, evidence, and image hashes before updating the separate Kata Arcade snapshot. A capture failure leaves the previous manifest in place; do not publish partial output. Refreshes intentionally reuse the two reviewed filenames, so run in a clean working tree and review the complete diff.

@@ -83,19 +83,20 @@ export class FarmScene {
     this.hoverMesh=new THREE.Mesh(new THREE.BoxGeometry(.97,.025,.97),new THREE.MeshBasicMaterial({color:0xfff8b5,transparent:true,opacity:.45})); this.hoverMesh.visible=false; this.scene.add(this.hoverMesh);
     this.raycaster=new THREE.Raycaster(); this.pointer=new THREE.Vector2();
     const pick=e=>{const r=this.renderer.domElement.getBoundingClientRect();this.pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);this.raycaster.setFromCamera(this.pointer,this.camera);return this.raycaster.intersectObjects(this.objects,false)[0]?.object.userData.index;};
-    this.renderer.domElement.addEventListener('pointermove',e=>{const i=pick(e);if(i!==this.hoverIndex){this.hoverIndex=i;this.hoverMesh.visible=i!==undefined;if(i!==undefined)this.hoverMesh.position.set(i%12-5.5,.145,Math.floor(i/12)-5.5);onHover(i);}});
-    this.renderer.domElement.addEventListener('pointerleave',()=>{this.hoverMesh.visible=false;this.hoverIndex=undefined;onHover(undefined);});
+    this.renderer.domElement.addEventListener('pointermove',e=>{const i=pick(e);if(i!==this.hoverIndex){this.hoverIndex=i;this.hoverMesh.visible=i!==undefined;if(i!==undefined)this.hoverMesh.position.set(i%12-5.5,.145,Math.floor(i/12)-5.5);onHover(i);this.renderer.render(this.scene,this.camera);}});
+    this.renderer.domElement.addEventListener('pointerleave',()=>{this.hoverMesh.visible=false;this.hoverIndex=undefined;onHover(undefined);this.renderer.render(this.scene,this.camera);});
     this.renderer.domElement.addEventListener('pointerdown',e=>{this.down={x:e.clientX,y:e.clientY};});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(this.down&&Math.hypot(e.clientX-this.down.x,e.clientY-this.down.y)<8){const i=pick(e);if(i!==undefined)onSelect(i);}this.down=null;});
     this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container); this.resize();
-    this.frame=()=>{this.renderer.render(this.scene,this.camera);this.raf=requestAnimationFrame(this.frame);};this.frame();
+    this.renderer.render(this.scene,this.camera);
   }
-  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.renderer.setSize(w,h);const aspect=w/h,vertical=aspect<1?12:9.4;this.camera.left=-vertical*aspect;this.camera.right=vertical*aspect;this.camera.top=vertical;this.camera.bottom=-vertical;this.camera.zoom=this.zoom;this.camera.updateProjectionMatrix();}
+  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.renderer.setSize(w,h);const aspect=w/h,vertical=aspect<1?12:9.4;this.camera.left=-vertical*aspect;this.camera.right=vertical*aspect;this.camera.top=vertical;this.camera.bottom=-vertical;this.camera.zoom=this.zoom;this.camera.updateProjectionMatrix();this.renderer.render(this.scene,this.camera);}
   setZoom(delta){this.zoom=THREE.MathUtils.clamp(this.zoom+delta,.65,1.65);this.resize();}
   update(state,now){
+    let dirty=false;
     for(let i=0;i<144;i++){
       const tile=state.tiles[i],g=this.tileGroups[i],status=cropStatus(tile,now),p=progress(tile,now);const key=JSON.stringify(tile)+status+Math.floor(p*4)+itemReady(tile,now);
-      if(g.userData.key===key)continue;g.userData.key=key;g.clear();
+      if(g.userData.key===key)continue;dirty=true;g.userData.key=key;g.clear();
       this.objects[i].material=material(tile.kind==='grass'||tile.kind==='item'?((i+Math.floor(i/12))%2?COLORS.grass:COLORS.grass2):tile.kind==='fallow'?0x93755a:COLORS.dirt);
       if(['plowed','crop'].includes(tile.kind))for(let row=0;row<5;row++)mesh('box',0x5e4538,0,.02,(row-2)*.17,.86,.03,.045,g);
       if(tile.kind==='crop')sprout(g,CROP_BY_ID[tile.crop],status,p);
@@ -107,6 +108,7 @@ export class FarmScene {
       }
       if(status==='ready'||itemReady(tile,now)){const mark=mesh('sphere',0xf5d782,.32,.7,.32,.07,.07,.07,g);mark.castShadow=false;}
     }
+    if(dirty)this.renderer.render(this.scene,this.camera);
   }
   destroy(){cancelAnimationFrame(this.raf);this.resizeObserver.disconnect();this.renderer.dispose();}
 }

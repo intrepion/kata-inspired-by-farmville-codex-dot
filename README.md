@@ -13,7 +13,7 @@ Start on a 12 × 12 farm with 200 coins, two ripe crops, two growing crops, and 
 - **Plant:** pay the seed price separately and earn that crop’s planting XP. Plant only on tilled ground.
 - **Withering:** a crop is ready after one growth duration and withers at two growth durations from planting. This deterministic boundary approximates historical staggered behavior.
 - **Progress:** planting and plowing unlock crops at the documented early levels. Levels are capped at 10 in this bounded reconstruction.
-- **Shop:** buy an apple tree, chicken, or original decorations. Trees and animals produce repeatedly and never wither. Move them without resetting their timers.
+- **Shop:** buy an apple tree, chicken, or decorations. Trees and animals produce repeatedly and never wither. Move them without resetting their timers.
 
 ### Controls
 
@@ -25,7 +25,7 @@ The farm saves automatically in this browser’s local storage. Classic and Sand
 
 This is **not an exact copy of every FarmVille feature**. It reconstructs the researched early crop loop with original code, art, camera, and interface. See [research and the fidelity matrix](docs/RESEARCH.md) for source links, numbers, version changes, and deviations.
 
-Not implemented: Facebook neighbors, visits or gifts, expansions, crop mastery, ribbons, tractors, buildings with production systems, premium purchases, seasonal content, the full crop/object catalog, or Zynga’s backend. The Farm Cash counter is historical context only and has no purchasing function. Decoration pricing is an explicit local design choice. No copied FarmVille art, audio, logos, text, or source code is included.
+Not implemented: Facebook neighbors, visits or gifts, expansions, crop mastery, ribbons, tractors, buildings with production systems, premium purchases, seasonal content, the full crop/object catalog, or Zynga’s backend. The Farm Cash counter is historical context only and has no purchasing function. Tree/animal day conversion uses the documented 23-hour convention; historical sources also report other timer revisions. No copied FarmVille art, audio, logos, text, or source code is included.
 
 ## Run and test
 

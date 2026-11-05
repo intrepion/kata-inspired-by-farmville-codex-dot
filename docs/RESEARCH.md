@@ -44,7 +44,7 @@ Early level thresholds implemented for levels 1–10: 0, 20, 40, 90, 200, 350, 5
 | Growth | Saved wall-clock timestamps | Device clock; no authoritative server or anti-cheat |
 | Withering | Ready at 1×, dead at 2× growth duration | Deterministic approximation; accounts differ on start/stagger timing |
 | Trees and animals | Repeating production, never wither | Tiny subset; no care/feeding gate |
-| Layout and decorations | Original 3D models; movable objects | Original decoration prices; no resale/building system |
+| Layout and decorations | Original 3D models; movable objects | Historical subset of decoration prices/XP; no resale/building system |
 | Farm Cash | Displayed initial historical balance | No spending, payments, or earning system |
 | Social and expansions | Omitted, not simulated as real people | Original expansions also required neighbors |
 | Sandbox | Separate 600× clock and save | Explicitly nonhistorical convenience mode |
@@ -55,3 +55,14 @@ Withering choice: the Gamezebo walkthrough says a ripe crop remains harvestable 
 ## Strategy example
 
 A strawberry cycle costs 15 coins to plow plus 10 to seed, pays 35 on harvest, and earns 2 total XP. Net profit is 10 coins, provided the crop is harvested in its ready window. Planting a quick crop before a long absence risks losing the entire harvest. Trees and animals trade slower returns for no withering risk.
+
+## Farm shop data
+
+| Object | Purchase coins | Placement XP | Production | Unlock |
+|---|---:|---:|---|---:|
+| Apple tree | 325 | 5 | 28 coins every 3 listed days (69 hours here) | 1 |
+| Chicken | 400 | 5 | 8 coins every 1 listed day (23 hours here) | 4 |
+| Yellow hay bale | 100 | 5 | Decorative | 1 |
+| Whitewash fence | 300 | 5 | Decorative | 1 |
+
+Sources: [Gamezebo walkthrough](https://www.gamezebo.com/walkthroughs/farmville-walkthrough/), [January 2010 trees table](https://jrlatenight.blogspot.com/2010/01/jrs-farmville-part-2-trees.html), [December 2009 animals table](https://scdlsolvedassignments.wordpress.com/2009/12/17/farmville-animals/), [SuperCheats leveling](https://www.supercheats.com/guides/farmville/levels-leveling), and [GameYum market guide](https://www.gameyum.com/farmville/58153-beginners-guide-to-the-market/). The crop convention of 23 hours per listed day is applied consistently in this reconstruction. Later wiki values include 75-hour apples / 25-hour chickens, so the conversion is not asserted as universal historical parity. Resale is not implemented (historical hay/fence resale values were 5/15 coins).

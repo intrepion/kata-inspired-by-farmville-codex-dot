@@ -111,30 +111,30 @@ test('level boundaries and level-up notification are exact', () => {
 });
 for (const item of ITEMS) {
   test(`${item.id}: buy charges cost and respects placement and balance`, () => {
-    const s = fresh(); s.coins = item.cost; assert.equal(act(s, 'buy', 0, item.id, NOW).ok, true);
-    assert.equal(s.coins, 0); assert.equal(s.xp, item.xp); assert.deepEqual(s.tiles[0], { kind: 'item', item: item.id, collected: NOW });
+    const s = fresh(); s.xp = LEVELS[item.level - 1]; const oldXp = s.xp; s.coins = item.cost; assert.equal(act(s, 'buy', 0, item.id, NOW).ok, true);
+    assert.equal(s.coins, 0); assert.equal(s.xp, oldXp + item.xp); assert.deepEqual(s.tiles[0], { kind: 'item', item: item.id, collected: NOW });
     unchangedFailure(s, 'buy', 1, item.id, NOW); s.coins = 1000; unchangedFailure(s, 'buy', 76, item.id, NOW);
   });
 }
 for (const id of ['apple', 'chicken']) {
   test(`${id}: production repeats, never withers, and cannot double collect`, () => {
-    const item = ITEMS.find(i => i.id === id), s = fresh(); s.coins = item.cost; act(s, 'buy', 0, id, NOW);
+    const item = ITEMS.find(i => i.id === id), s = fresh(); s.xp = LEVELS[item.level - 1]; const oldXp = s.xp; s.coins = item.cost; act(s, 'buy', 0, id, NOW);
     const period = item.hours * HOUR, late = NOW + period * 100;
     assert.equal(itemReady(s.tiles[0], NOW + period - 1), false); assert.equal(itemReady(s.tiles[0], NOW + period), true);
     unchangedFailure(s, 'harvest', 0, null, NOW + period - 1);
     assert.equal(itemReady(s.tiles[0], late), true); assert.equal(act(s, 'harvest', 0, null, late).ok, true);
-    assert.equal(s.coins, item.sell); assert.equal(s.xp, 0); assert.equal(s.tiles[0].collected, late);
+    assert.equal(s.coins, item.sell); assert.equal(s.xp, oldXp + item.xp); assert.equal(s.tiles[0].collected, late);
     unchangedFailure(s, 'harvest', 0, null, late); assert.equal(act(s, 'harvest', 0, null, late + period).ok, true);
     assert.equal(s.coins, 2 * item.sell); assert.equal(s.earned, 2 * item.sell); assert.equal(s.harvested, 2);
   });
 }
 test('decorations never produce goods', () => {
-  for (const id of ['hay', 'fence']) { const s = fresh(); act(s, 'buy', 0, id, NOW); assert.equal(itemReady(s.tiles[0], NOW + 1000 * HOUR), false); unchangedFailure(s, 'harvest', 0, null, NOW + 1000 * HOUR); }
+  for (const id of ['hay', 'fence']) { const s = fresh(); s.coins = 1000; assert.equal(act(s, 'buy', 0, id, NOW).ok, true); assert.equal(itemReady(s.tiles[0], NOW + 1000 * HOUR), false); unchangedFailure(s, 'harvest', 0, null, NOW + 1000 * HOUR); }
 });
 test('moving preserves item production timer and all balances', () => {
   const s = fresh(); s.coins = 1000; act(s, 'buy', 0, 'apple', NOW); const original = copy(s.tiles[0]); const coins = s.coins;
   assert.equal(act(s, 'move', 1, 0, NOW + HOUR).ok, true); assert.deepEqual(s.tiles[1], original); assert.deepEqual(s.tiles[0], { kind: 'grass' });
-  assert.equal(s.coins, coins); assert.equal(s.xp, 0); assert.equal(itemReady(s.tiles[1], NOW + 46 * HOUR), true);
+  assert.equal(s.coins, coins); assert.equal(s.xp, 5); assert.equal(itemReady(s.tiles[1], NOW + 69 * HOUR), true);
   unchangedFailure(s, 'move', 1, 1, NOW); unchangedFailure(s, 'move', 76, 1, NOW); unchangedFailure(s, 'move', 2, 52, NOW);
 });
 test('unknown and inherited item IDs fail without mutation', () => {
@@ -155,7 +155,7 @@ test('item progress and remaining time are bounded', () => {
   assert.equal(timeRemaining(t, NOW), 23 * HOUR); assert.equal(timeRemaining(t, NOW + 23 * HOUR), 0);
 });
 test('farm stats count crops and productive items without double-counting items', () => {
-  const s = fresh(); s.tiles[0] = { kind: 'item', item: 'apple', collected: NOW - 46 * HOUR }; s.tiles[1] = { kind: 'item', item: 'hay', collected: NOW };
+  const s = fresh(); s.tiles[0] = { kind: 'item', item: 'apple', collected: NOW - 69 * HOUR }; s.tiles[1] = { kind: 'item', item: 'hay', collected: NOW };
   s.tiles[2] = cropTile('strawberry', NOW - 8 * HOUR);
   assert.deepEqual(farmStats(s, NOW), { ready: 3, growing: 2, withered: 1, plowed: 2, items: 2 });
 });
@@ -181,4 +181,14 @@ test('inherited catalog entries cannot sneak into saves', () => {
 });
 test('duration formatting rounds up and clamps elapsed values', () => {
   assert.equal(formatDuration(-1), '0s'); assert.equal(formatDuration(1), '1s'); assert.equal(formatDuration(60_000), '1m 0s'); assert.equal(formatDuration(HOUR + 120_000), '1h 2m');
+});
+
+test('researched item prices, purchase XP, durations, and unlocks remain canonical', () => {
+  const expected = {apple: [325, 28, 69, 5, 1], chicken: [400, 8, 23, 5, 4], hay: [100, 0, 0, 5, 1], fence: [300, 0, 0, 5, 1]};
+  for (const item of ITEMS) assert.deepEqual([item.cost, item.sell, item.hours, item.xp, item.level], expected[item.id]);
+});
+test('chicken is locked below level four and unlocks exactly at 90 XP', () => {
+  const s = fresh(); s.coins = 400; s.xp = 89; unchangedFailure(s, 'buy', 0, 'chicken', NOW);
+  s.xp = 90; const result = act(s, 'buy', 0, 'chicken', NOW);
+  assert.equal(result.ok, true); assert.equal(result.xp, 5); assert.equal(s.xp, 95); assert.equal(s.coins, 0);
 });

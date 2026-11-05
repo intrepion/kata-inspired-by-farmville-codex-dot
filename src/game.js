@@ -12,10 +12,10 @@ export const CROPS = [
   { id: 'raspberry', name: 'Raspberries', icon: '🫐', cost: 20, sell: 46, hours: 2, xp: 0, level: 8, color: '#b95c83', description: 'Quick returns, no planting XP.' },
 ];
 export const ITEMS = [
-  { id: 'apple', name: 'Apple tree', icon: '🌳', cost: 325, sell: 28, hours: 46, xp: 0, level: 1, kind: 'tree', color: '#7eab65' },
-  { id: 'chicken', name: 'Chicken', icon: '🐔', cost: 400, sell: 8, hours: 23, xp: 0, level: 1, kind: 'animal', color: '#f8f3da' },
-  { id: 'hay', name: 'Hay bale', icon: '🌾', cost: 100, sell: 0, hours: 0, xp: 0, level: 1, kind: 'decoration', color: '#d6b76d' },
-  { id: 'fence', name: 'White fence', icon: '▥', cost: 100, sell: 0, hours: 0, xp: 0, level: 1, kind: 'decoration', color: '#ece8d9' },
+  { id: 'apple', name: 'Apple tree', icon: '🌳', cost: 325, sell: 28, hours: 69, xp: 5, level: 1, kind: 'tree', color: '#7eab65' },
+  { id: 'chicken', name: 'Chicken', icon: '🐔', cost: 400, sell: 8, hours: 23, xp: 5, level: 4, kind: 'animal', color: '#f8f3da' },
+  { id: 'hay', name: 'Yellow hay bale', icon: '🌾', cost: 100, sell: 0, hours: 0, xp: 5, level: 1, kind: 'decoration', color: '#d6b76d' },
+  { id: 'fence', name: 'Whitewash fence', icon: '▥', cost: 300, sell: 0, hours: 0, xp: 5, level: 1, kind: 'decoration', color: '#ece8d9' },
 ];
 export const LEVELS = [0, 20, 40, 90, 200, 350, 550, 800, 1300, 1800];
 export const CROP_BY_ID = Object.assign(Object.create(null), Object.fromEntries(CROPS.map(c => [c.id, c])));
@@ -96,6 +96,7 @@ export function act(state, action, index, selection, now = timeNow(state)) {
   }
   if (action === 'buy') {
     const item = ITEM_BY_ID[selection]; if (!item) return fail('Choose something from the farm shop.');
+    if (level < item.level) return fail(`${item.name} unlocks at level ${item.level}.`);
     if (tile.kind !== 'grass') return fail('Place this on a free grass square.');
     if (state.coins < item.cost) return fail(`Save ${item.cost} coins for ${item.name.toLowerCase()}.`);
     state.coins -= item.cost; state.xp += item.xp; state.tiles[index] = { kind: 'item', item: item.id, collected: now };

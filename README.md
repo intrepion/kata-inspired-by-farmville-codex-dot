@@ -57,6 +57,6 @@ See [validation](docs/VALIDATION.md) for the actual test evidence. Pure engine t
 
 ## License and attribution
 
-MIT, copyright 2026 Oliver Forral. Original models are authored geometry; market crop symbols use system emoji. Three.js is MIT-licensed. FarmVille is a trademark of Zynga. This independent educational project is not affiliated with or endorsed by Zynga.
+MIT, copyright 2026 Oliver Forral. Original models are authored geometry; market crop symbols use system emoji. Three.js is MIT-licensed; its full notice ships in [public/licenses/three-LICENSE.txt](public/licenses/three-LICENSE.txt). FarmVille is a trademark of Zynga. This independent educational project is not affiliated with or endorsed by Zynga.
 
 The combined `.gitignore` includes the Linux, Windows, and macOS global templates from [github/gitignore](https://github.com/github/gitignore/tree/main/Global), plus generated Node/Vite artifacts. Dependency locks and source remain tracked.
